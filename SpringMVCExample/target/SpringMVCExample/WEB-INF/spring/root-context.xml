@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<context:component-scan base-package="com.*" />
+
+	
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306" />
+		<property name="username" value="root" />
+	</bean>
+
+
+	<!-- Create default configuration for Hibernate -->
+	<bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+
+	<!-- Configure the entity manager factory bean -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="packagesToScan" value="com.domain" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter" />
+
+		<!-- Set JPA properties -->
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.naming_strategy">org.hibernate.cfg.EJB3NamingStrategy</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Configure the transaction manager bean -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+	<!-- Enable annotation driven transaction management -->
+	<tx:annotation-driven />
+
+	<!-- Configure Spring Data JPA and set the base package of the repository 
+		interfaces -->
+	<jpa:repositories base-package="com.respository" />
+
+	<bean id="persistenceExceptionTranslationPostProcessor"
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+</beans>
